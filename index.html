@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BabyLog – Registro del bebé</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0c10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
+<style>
+:root{
+  --bg:#0b0c10; --card:#15171d; --muted:#9aa3af; --text:#e5e7eb; --acc:#7c3aed; --acc2:#22c55e; --warn:#ef4444;
+  --border:#23262e;
+  --pad:14px;
+  font-synthesis-weight: none;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+html,body{height:100%;}
+body{
+  margin:0; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui,Helvetica,Arial,sans-serif;
+  background: var(--bg); color: var(--text);
+}
+header{
+  position: sticky; top:0; z-index:10; background: rgba(11,12,16,0.9); backdrop-filter: blur(10px);
+  border-bottom:1px solid var(--border);
+}
+h1{font-size:18px; margin:0; padding:16px; text-align:center; letter-spacing:.3px;}
+.tabs{display:flex; gap:8px; padding:8px; border-bottom:1px solid var(--border); overflow:auto;}
+.tab-btn{
+  appearance:none; border:none; border-radius:10px; padding:10px 12px; color:var(--text); background:#1c1f26;
+  font-size:14px; white-space:nowrap;
+}
+.tab-btn.active{background:var(--acc);}
+.container{padding:var(--pad); padding-bottom:80px;}
+.card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:var(--pad); margin-bottom:12px;}
+label{display:block; font-size:13px; color:var(--muted); margin-bottom:6px;}
+input,select,textarea{
+  width:100%; background:#0f1117; border:1px solid var(--border); color:var(--text); border-radius:10px; padding:12px; font-size:16px;
+}
+input[type="datetime-local"]{padding:10px 12px;}
+.row{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.btn{
+  width:100%; border:none; border-radius:12px; padding:12px; font-size:16px; background:var(--acc); color:white;
+}
+.btn.secondary{background:#1f2937;}
+.btn.danger{background:var(--warn);}
+.small{font-size:12px; color:var(--muted);}
+.list{list-style:none; padding:0; margin:0;}
+.item{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:12px; border-bottom:1px solid var(--border);}
+.badge{font-size:12px; padding:4px 8px; border-radius:999px; background:#1f2937; color:#cbd5e1; margin-left:6px;}
+.kpis{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
+.kpi{background:#0f1117; border:1px solid var(--border); border-radius:12px; padding:12px;}
+.kpi h3{margin:0 0 8px 0; font-size:13px; color:#cbd5e1; font-weight:600;}
+.kpi .val{font-size:22px;}
+canvas{width:100%; height:180px; background:#0f1117; border:1px solid var(--border); border-radius:12px;}
+footer{
+  position: fixed; bottom:0; left:0; right:0; background: rgba(11,12,16,0.9); backdrop-filter: blur(10px);
+  border-top:1px solid var(--border); padding:10px;
+}
+footer .row{grid-template-columns:1fr 1fr;}
+a.link{color:#93c5fd; text-decoration:none;}
+.hidden{display:none;}
+hr{border:none; border-top:1px solid var(--border); margin:12px 0;}
+section h2{margin:0 0 8px 0; font-size:16px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>🍼 BabyLog — Control esencial</h1>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="registrar">Registrar</button>
+    <button class="tab-btn" data-tab="historial">Historial</button>
+    <button class="tab-btn" data-tab="dashboard">Dashboard</button>
+    <button class="tab-btn" data-tab="ajustes">Ajustes</button>
+  </div>
+</header>
+
+<main class="container">
+  <!-- Registrar -->
+  <section id="registrar" class="tab card">
+    <h2>Nueva entrada</h2>
+    <div class="row">
+      <select id="tipo">
+        <option value="toma">Toma</option>
+        <option value="panal">Pañal</option>
+        <option value="sueno">Sueño</option>
+        <option value="medicion">Medición</option>
+      </select>
+      <input id="fecha" type="datetime-local">
+    </div>
+    <div id="campos"></div>
+    <button class="btn" id="guardar">Guardar</button>
+    <p class="small">Todos los datos se guardan en este dispositivo (localStorage). Exporta una copia en Ajustes periódicamente.</p>
+  </section>
+
+  <!-- Historial -->
+  <section id="historial" class="tab card hidden">
+    <h2>Historial</h2>
+    <div class="row">
+      <input type="date" id="fDesde">
+      <input type="date" id="fHasta">
+    </div>
+    <div class="row">
+      <select id="fTipo">
+        <option value="todos">Todos</option>
+        <option value="toma">Toma</option>
+        <option value="panal">Pañal</option>
+        <option value="sueno">Sueño</option>
+        <option value="medicion">Medición</option>
+      </select>
+      <button class="btn secondary" id="aplicarFiltros">Aplicar filtros</button>
+    </div>
+    <ul class="list" id="lista"></ul>
+  </section>
+
+  <!-- Dashboard -->
+  <section id="dashboard" class="tab hidden">
+    <div class="card">
+      <h2>Hoy</h2>
+      <div class="kpis" id="kpisHoy"></div>
+      <canvas id="chartHoy"></canvas>
+    </div>
+    <div class="card">
+      <h2>Últimos 7 días</h2>
+      <div class="kpis" id="kpisSemana"></div>
+      <canvas id="chartSemana"></canvas>
+    </div>
+    <div class="card">
+      <h2>Últimos 30 días</h2>
+      <div class="kpis" id="kpisMes"></div>
+      <canvas id="chartMes"></canvas>
+    </div>
+  </section>
+
+  <!-- Ajustes -->
+  <section id="ajustes" class="tab card hidden">
+    <h2>Ajustes & Copias</h2>
+    <button class="btn secondary" id="exportar">Exportar JSON</button>
+    <input class="hidden" type="file" id="importarFile" accept="application/json">
+    <button class="btn secondary" id="importar">Importar JSON</button>
+    <hr>
+    <h2>Datos opcionales</h2>
+    <p class="small">Puedes registrar peso (kg), temperatura (°C) o notas rápidas. Úsalos cuando haga falta.</p>
+    <hr>
+    <button class="btn danger" id="borrarTodo">Borrar TODO (irrecuperable)</button>
+  </section>
+</main>
+
+<footer>
+  <div class="row">
+    <button class="btn" id="btnToma">+ Toma</button>
+    <button class="btn" id="btnPanal">+ Pañal</button>
+  </div>
+  <div class="row" style="margin-top:8px;">
+    <button class="btn" id="btnSueno">+ Sueño</button>
+    <button class="btn" id="btnMedicion">+ Medición</button>
+  </div>
+</footer>
+
+<script>
+/* ========= Persistencia ========= */
+const KEY='babylog.v1';
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return []; } }
+function save(data){ localStorage.setItem(KEY, JSON.stringify(data)); }
+
+/* ========= Utiles ========= */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+function pad(n){ return n.toString().padStart(2,'0'); }
+function fmtDate(d){
+  const dt=new Date(d);
+  const y=dt.getFullYear(), m=pad(dt.getMonth()+1), day=pad(dt.getDate());
+  const hh=pad(dt.getHours()), mm=pad(dt.getMinutes());
+  return `${y}-${m}-${day} ${hh}:${mm}`;
+}
+function todayStr(){ const d=new Date(); return d.toISOString().slice(0,10); }
+function toLocalInput(dt){
+  if(!dt) dt=new Date();
+  const off=dt.getTimezoneOffset();
+  const t=new Date(dt.getTime()-off*60000);
+  return t.toISOString().slice(0,16);
+}
+function fromLocalInput(val){
+  const d=new Date(val);
+  const off = d.getTimezoneOffset();
+  return new Date(d.getTime()+off*60000).toISOString();
+}
+function durationMin(startISO,endISO){
+  const a=new Date(startISO), b=new Date(endISO);
+  return Math.max(0, Math.round((b-a)/60000));
+}
+
+/* ========= Estado ========= */
+let DATA = load();
+
+/* ========= UI Tabs ========= */
+$$('.tab-btn').forEach(b=>b.addEventListener('click',()=>{
+  $$('.tab-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  const tab=b.dataset.tab;
+  $$('.tab').forEach(sec=> sec.id===tab ? sec.classList.remove('hidden') : sec.classList.add('hidden'));
+  if(tab==='dashboard') renderDashboard();
+  if(tab==='historial') renderHistorial();
+  if(tab==='registrar') renderCampos($('#tipo').value);
+}));
+
+$('#btnToma').onclick=()=>{$('#tipo').value='toma'; switchTab('registrar'); renderCampos('toma');}
+$('#btnPanal').onclick=()=>{$('#tipo').value='panal'; switchTab('registrar'); renderCampos('panal');}
+$('#btnSueno').onclick=()=>{$('#tipo').value='sueno'; switchTab('registrar'); renderCampos('sueno');}
+$('#btnMedicion').onclick=()=>{$('#tipo').value='medicion'; switchTab('registrar'); renderCampos('medicion');}
+
+function switchTab(id){
+  $$('.tab-btn').forEach(x=>{ x.classList.toggle('active', x.dataset.tab===id); });
+  $$('.tab').forEach(sec=> sec.classList.toggle('hidden', sec.id!==id));
+}
+
+$('#fecha').value = toLocalInput(new Date());
+
+$('#tipo').addEventListener('change', e=> renderCampos(e.target.value));
+function renderCampos(tipo){
+  const c=$('#campos'); c.innerHTML='';
+  if(tipo==='toma'){
+    c.innerHTML=`
+      <div class="row">
+        <select id="tomaTipo">
+          <option value="pecho">Pecho</option>
+          <option value="biberon">Biberón</option>
+        </select>
+        <select id="pechoLado">
+          <option value="izquierdo">Izquierdo</option>
+          <option value="derecho">Derecho</option>
+          <option value="ambos">Ambos</option>
+        </select>
+      </div>
+      <div class="row">
+        <input id="duracion" type="number" min="0" inputmode="numeric" placeholder="Duración (min)">
+        <input id="cantidad" type="number" min="0" inputmode="numeric" placeholder="Cantidad (ml, si biberón)">
+      </div>
+      <textarea id="notas" rows="2" placeholder="Notas (opcional)"></textarea>
+    `;
+  } else if(tipo==='panal'){
+    c.innerHTML=`
+      <div class="row">
+        <select id="panalTipo">
+          <option value="caca">Caca</option>
+          <option value="pis">Pis</option>
+          <option value="mixto">Mixto</option>
+        </select>
+        <select id="panalCantidad">
+          <option value="poco">Poco</option>
+          <option value="normal">Normal</option>
+          <option value="mucho">Mucho</option>
+        </select>
+      </div>
+      <textarea id="notas" rows="2" placeholder="Color/consistencia/irritación (opcional)"></textarea>
+    `;
+  } else if(tipo==='sueno'){
+    c.innerHTML=`
+      <div class="row">
+        <input id="inicio" type="datetime-local" placeholder="Inicio">
+        <input id="fin" type="datetime-local" placeholder="Fin">
+      </div>
+      <div class="row">
+        <input id="despertares" type="number" min="0" inputmode="numeric" placeholder="Despertares">
+        <select id="calidad">
+          <option value="ok">Calidad: OK</option>
+          <option value="inquieto">Inquieto</option>
+          <option value="malo">Malo</option>
+        </select>
+      </div>
+      <textarea id="notas" rows="2" placeholder="Notas (ruido, fiebre, dentición...) (opcional)"></textarea>
+    `;
+    $('#inicio').value = toLocalInput(new Date());
+    $('#fin').value = toLocalInput(new Date());
+  } else if(tipo==='medicion'){
+    c.innerHTML=`
+      <div class="row">
+        <input id="peso" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Peso (kg)">
+        <input id="temp" type="number" min="30" max="45" step="0.1" inputmode="decimal" placeholder="Temperatura (°C)">
+      </div>
+      <textarea id="notas" rows="2" placeholder="Notas rápidas"></textarea>
+    `;
+  }
+}
+
+renderCampos($('#tipo').value);
+
+/* ========= Guardar ========= */
+$('#guardar').addEventListener('click', ()=>{
+  const tipo = $('#tipo').value;
+  const fechaISO = fromLocalInput($('#fecha').value);
+  const base = { id: crypto.randomUUID(), tipo, fecha: fechaISO };
+  if(tipo==='toma'){
+    const d = {
+      ...base,
+      tomaTipo: $('#tomaTipo').value,
+      pechoLado: $('#pechoLado').value,
+      duracion: +($('#duracion').value||0),
+      cantidad: +($('#cantidad').value||0),
+      notas: ($('#notas').value||'').trim()
+    };
+    DATA.push(d);
+  }else if(tipo==='panal'){
+    const d = {
+      ...base,
+      panalTipo: $('#panalTipo').value,
+      panalCantidad: $('#panalCantidad').value,
+      notas: ($('#notas').value||'').trim()
+    };
+    DATA.push(d);
+  }else if(tipo==='sueno'){
+    const d = {
+      ...base,
+      inicio: fromLocalInput($('#inicio').value),
+      fin: fromLocalInput($('#fin').value),
+      despertares: +($('#despertares').value||0),
+      calidad: $('#calidad').value,
+      notas: ($('#notas').value||'').trim()
+    };
+    DATA.push(d);
+  }else if(tipo==='medicion'){
+    const d = {
+      ...base,
+      peso: $('#peso').value ? +$('#peso').value : null,
+      temp: $('#temp').value ? +$('#temp').value : null,
+      notas: ($('#notas').value||'').trim()
+    };
+    if(d.peso===null && d.temp===null && !d.notas){ alert('Añade al menos un dato.'); return;}
+    DATA.push(d);
+  }
+  save(DATA);
+  flash('Guardado ✅');
+  // reset rápidos
+  $('#fecha').value = toLocalInput(new Date());
+  renderCampos(tipo);
+});
+
+/* ========= Historial ========= */
+function renderHistorial(){
+  const lista = $('#lista'); lista.innerHTML='';
+  const tipo = $('#fTipo').value;
+  const dDesde = $('#fDesde').value ? new Date($('#fDesde').value+'T00:00:00') : null;
+  const dHasta = $('#fHasta').value ? new Date($('#fHasta').value+'T23:59:59') : null;
+
+  const filtered = DATA.filter(it=>{
+    if(tipo!=='todos' && it.tipo!==tipo) return false;
+    const t = new Date(it.fecha);
+    if(dDesde && t<dDesde) return false;
+    if(dHasta && t>dHasta) return false;
+    return true;
+  }).sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
+
+  if(filtered.length===0){ lista.innerHTML='<p class="small">Sin datos.</p>'; return; }
+
+  for(const it of filtered){
+    const li=document.createElement('li'); li.className='item';
+    const left=document.createElement('div');
+    const right=document.createElement('div');
+    right.innerHTML=`<button class="tab-btn" data-del="${it.id}">Eliminar</button>`;
+    left.innerHTML = renderItem(it);
+    li.appendChild(left); li.appendChild(right);
+    lista.appendChild(li);
+  }
+
+  // eliminar
+  $$('#lista [data-del]').forEach(btn=> btn.onclick=()=>{
+    const id = btn.dataset.del;
+    if(confirm('¿Eliminar esta entrada?')){
+      DATA = DATA.filter(x=>x.id!==id); save(DATA); renderHistorial(); renderDashboard();
+    }
+  });
+}
+function renderItem(it){
+  const fecha = fmtDate(it.fecha);
+  if(it.tipo==='toma'){
+    const tag = it.tomaTipo==='pecho'
+      ? `Pecho <span class="badge">${it.pechoLado}</span>`
+      : `Biberón <span class="badge">${it.cantidad||0} ml</span>`;
+    return `<div><strong>🍼 Toma</strong> — ${tag} — ${it.duracion||0} min<br><span class="small">${fecha}${it.notas? ' · '+escapeHtml(it.notas):''}</span></div>`;
+  }else if(it.tipo==='panal'){
+    return `<div><strong>🧷 Pañal</strong> — ${it.panalTipo} · ${it.panalCantidad}<br><span class="small">${fecha}${it.notas? ' · '+escapeHtml(it.notas):''}</span></div>`;
+  }else if(it.tipo==='sueno'){
+    const mins = durationMin(it.inicio,it.fin);
+    return `<div><strong>🌙 Sueño</strong> — ${mins} min · despertares: ${it.despertares}<br><span class="small">${fmtDate(it.inicio)} → ${fmtDate(it.fin)}${it.notas? ' · '+escapeHtml(it.notas):''}</span></div>`;
+  }else{
+    const bits=[];
+    if(it.peso!=null) bits.push(`Peso: ${it.peso} kg`);
+    if(it.temp!=null) bits.push(`Temp: ${it.temp} °C`);
+    return `<div><strong>📏 Medición</strong> — ${bits.join(' · ')||'—'}<br><span class="small">${fecha}${it.notas? ' · '+escapeHtml(it.notas):''}</span></div>`;
+  }
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m])); }
+
+$('#aplicarFiltros').onclick=()=> renderHistorial();
+
+/* ========= Dashboard ========= */
+function renderDashboard(){
+  const now = new Date();
+  const startHoy = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startSemana = new Date(now.getTime()-6*86400000); startSemana.setHours(0,0,0,0);
+  const startMes = new Date(now.getTime()-29*86400000); startMes.setHours(0,0,0,0);
+
+  const inRange = (it, start)=> new Date(it.fecha)>=start;
+
+  const hoy = DATA.filter(it=> inRange(it,startHoy));
+  const semana = DATA.filter(it=> inRange(it,startSemana));
+  const mes = DATA.filter(it=> inRange(it,startMes));
+
+  renderKPIs(hoy, $('#kpisHoy'));
+  renderKPIs(semana, $('#kpisSemana'));
+  renderKPIs(mes, $('#kpisMes'));
+
+  drawBars($('#chartHoy'), groupByDay(hoy, startHoy, 1));
+  drawBars($('#chartSemana'), groupByDay(semana, startSemana, 7));
+  drawBars($('#chartMes'), groupByDay(mes, startMes, 30));
+}
+
+function renderKPIs(items, el){
+  const kpi = calcKPIs(items);
+  el.innerHTML = `
+    <div class="kpi"><h3>Tomas</h3><div class="val">${kpi.tomas}</div></div>
+    <div class="kpi"><h3>Min. pecho</h3><div class="val">${kpi.minPecho}</div></div>
+    <div class="kpi"><h3>ml biberón</h3><div class="val">${kpi.mlBiberon}</div></div>
+    <div class="kpi"><h3>Pañales</h3><div class="val">${kpi.panales}</div></div>
+    <div class="kpi"><h3>Sueño (h)</h3><div class="val">${(kpi.minSueno/60).toFixed(1)}</div></div>
+    <div class="kpi"><h3>Despertares</h3><div class="val">${kpi.despertares}</div></div>
+  `;
+}
+
+function calcKPIs(items){
+  let tomas=0, minPecho=0, mlBiberon=0, panales=0, minSueno=0, despertares=0;
+  for(const it of items){
+    if(it.tipo==='toma'){
+      tomas++;
+      if(it.tomaTipo==='pecho') minPecho += +it.duracion||0;
+      if(it.tomaTipo==='biberon') mlBiberon += +it.cantidad||0;
+    }else if(it.tipo==='panal'){
+      panales++;
+    }else if(it.tipo==='sueno'){
+      minSueno += durationMin(it.inicio,it.fin);
+      despertares += +it.despertares||0;
+    }
+  }
+  return { tomas, minPecho, mlBiberon, panales, minSueno, despertares };
+}
+
+function groupByDay(items, startDate, days){
+  const fmt = d=>`${pad(d.getDate())}/${pad(d.getMonth()+1)}`;
+  const labels=[], tomas=[], panales=[], suenoH=[];
+  for(let i=0;i<days;i++){
+    const d=new Date(startDate.getTime()+i*86400000);
+    labels.push(fmt(d));
+    const sameDay = items.filter(x=>{
+      const t=new Date(x.fecha);
+      return t.getFullYear()===d.getFullYear() && t.getMonth()===d.getMonth() && t.getDate()===d.getDate();
+    });
+    const k = calcKPIs(sameDay);
+    tomas.push(k.tomas);
+    panales.push(k.panales);
+    suenoH.push(+((k.minSueno/60).toFixed(1)));
+  }
+  return {labels, series:[{name:'Tomas', data:tomas},{name:'Pañales', data:panales},{name:'Sueño (h)', data:suenoH}]};
+}
+
+/* Simple bar chart without external libs */
+function drawBars(canvas, data){
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width = canvas.clientWidth * devicePixelRatio;
+  const h = canvas.height = canvas.clientHeight * devicePixelRatio;
+  ctx.clearRect(0,0,w,h);
+  const padding=20*devicePixelRatio;
+  const labels = data.labels;
+  const series = data.series; // 3 series
+
+  // Compute max
+  let max=1;
+  for(const s of series) for(const v of s.data) max=Math.max(max, v);
+  const colors = ['#7c3aed','#22c55e','#60a5fa'];
+
+  const barGroupWidth = (w - 2*padding) / labels.length;
+  const barWidth = barGroupWidth / (series.length+0.5);
+  ctx.lineWidth = 1*devicePixelRatio;
+  ctx.font = `${10*devicePixelRatio}px -apple-system, Inter, sans-serif`;
+  ctx.textAlign='center'; ctx.textBaseline='top';
+
+  // grid
+  ctx.strokeStyle = '#23262e';
+  const steps = 4;
+  for(let i=0;i<=steps;i++){
+    const y = padding + (h-2*padding) * i/steps;
+    ctx.beginPath(); ctx.moveTo(padding,y); ctx.lineTo(w-padding,y); ctx.stroke();
+  }
+
+  // bars
+  labels.forEach((lab, i)=>{
+    series.forEach((s, j)=>{
+      const v = s.data[i];
+      const x = padding + i*barGroupWidth + j*barWidth;
+      const y = padding + (1 - v/max) * (h-2*padding);
+      const bh = (h-2*padding) * (v/max);
+      ctx.fillStyle = colors[j % colors.length];
+      ctx.fillRect(x+2, y, barWidth-4, bh);
+    });
+    // label
+    ctx.fillStyle = '#9aa3af';
+    ctx.fillText(lab, padding + i*barGroupWidth + (series.length*barWidth)/2, h - padding + 4*devicePixelRatio);
+  });
+
+  // legend
+  const legendX = w - padding - 110*devicePixelRatio, legendY = padding-5*devicePixelRatio;
+  series.forEach((s, idx)=>{
+    ctx.fillStyle = colors[idx];
+    const y = legendY + idx*14*devicePixelRatio;
+    ctx.fillRect(legendX, y, 10*devicePixelRatio, 10*devicePixelRatio);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.textAlign='left';
+    ctx.fillText(` ${s.name}`, legendX + 12*devicePixelRatio, y - 2*devicePixelRatio);
+  });
+}
+
+/* ========= Export/Import ========= */
+$('#exportar').onclick=()=>{
+  const blob=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`babylog_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+};
+$('#importar').onclick=()=> $('#importarFile').click();
+$('#importarFile').addEventListener('change', async (e)=>{
+  const file = e.target.files[0]; if(!file) return;
+  try{
+    const txt = await file.text();
+    const obj = JSON.parse(txt);
+    if(!Array.isArray(obj)) throw new Error('Formato no válido');
+    if(!confirm('Esto reemplazará tus datos actuales. ¿Continuar?')) return;
+    DATA = obj; save(DATA);
+    flash('Datos importados ✅');
+    renderDashboard(); renderHistorial();
+  }catch(err){ alert('Error al importar: '+err.message); }
+  e.target.value='';
+});
+
+/* ========= Borrar ========= */
+$('#borrarTodo').onclick=()=>{
+  if(confirm('¿Seguro que quieres borrar TODOS los datos?')){
+    DATA = []; save(DATA); renderDashboard(); renderHistorial(); flash('Base de datos vaciada');
+  }
+};
+
+/* ========= Helpers ========= */
+function flash(msg){
+  const el=document.createElement('div');
+  el.textContent=msg;
+  el.style.position='fixed'; el.style.bottom='90px'; el.style.left='50%'; el.style.transform='translateX(-50%)';
+  el.style.background='#111827'; el.style.border='1px solid var(--border)'; el.style.padding='10px 14px';
+  el.style.borderRadius='10px'; el.style.zIndex=20;
+  document.body.appendChild(el);
+  setTimeout(()=> el.remove(), 1500);
+}
+
+// SW registration
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+  });
+}
+
+// Render inicial
+renderDashboard();
+renderHistorial();
+</script>
+</body>
+</html>
