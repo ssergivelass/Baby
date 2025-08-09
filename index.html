@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>BabyLog – Registro del bebé</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>BabyLog App</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0b0c10">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,112 +12,125 @@
 <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
 <style>
 :root{
-  --bg:#0b0c10; --card:#15171d; --muted:#9aa3af; --text:#e5e7eb; --acc:#7c3aed; --acc2:#22c55e; --warn:#ef4444;
-  --border:#23262e;
-  --pad:14px;
-  font-synthesis-weight: none;
+  --bg:#0b0c10; --card:#14161c; --muted:#9aa3af; --text:#e5e7eb; --acc:#7c3aed; --good:#22c55e; --warn:#f59e0b; --blue:#3b82f6;
+  --border:#23262e; --pad:14px; font-synthesis-weight: none;
+}
+@media (prefers-color-scheme: light){
+  :root{ --bg:#f7f7fb; --card:#ffffff; --muted:#6b7280; --text:#0f172a; --border:#e5e7eb; }
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
 html,body{height:100%;}
-body{
-  margin:0; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui,Helvetica,Arial,sans-serif;
-  background: var(--bg); color: var(--text);
+body{ margin:0; font-family:-apple-system, BlinkMacSystemFont, Inter, Roboto, system-ui, Helvetica, Arial, sans-serif;
+  background:var(--bg); color:var(--text); }
+header{ position:sticky; top:0; z-index:10; background:rgba(11,12,16,0.85); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border); }
+@media (prefers-color-scheme: light){
+  header{ background:rgba(255,255,255,0.85); }
 }
-header{
-  position: sticky; top:0; z-index:10; background: rgba(11,12,16,0.9); backdrop-filter: blur(10px);
-  border-bottom:1px solid var(--border);
-}
-h1{font-size:18px; margin:0; padding:16px; text-align:center; letter-spacing:.3px;}
-.tabs{display:flex; gap:8px; padding:8px; border-bottom:1px solid var(--border); overflow:auto;}
-.tab-btn{
-  appearance:none; border:none; border-radius:10px; padding:10px 12px; color:var(--text); background:#1c1f26;
-  font-size:14px; white-space:nowrap;
-}
-.tab-btn.active{background:var(--acc);}
-.container{padding:var(--pad); padding-bottom:80px;}
-.card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:var(--pad); margin-bottom:12px;}
+h1{font-size:18px; margin:0; padding:12px 16px; text-align:center; letter-spacing:.2px;}
+.container{padding:var(--pad); padding-bottom:96px;}
+.card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:var(--pad); margin-bottom:12px;}
 label{display:block; font-size:13px; color:var(--muted); margin-bottom:6px;}
 input,select,textarea{
-  width:100%; background:#0f1117; border:1px solid var(--border); color:var(--text); border-radius:10px; padding:12px; font-size:16px;
+  width:100%; background:transparent; border:1px solid var(--border); color:var(--text); border-radius:12px; padding:12px; font-size:16px;
 }
 input[type="datetime-local"]{padding:10px 12px;}
 .row{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-.btn{
-  width:100%; border:none; border-radius:12px; padding:12px; font-size:16px; background:var(--acc); color:white;
-}
-.btn.secondary{background:#1f2937;}
-.btn.danger{background:var(--warn);}
-.small{font-size:12px; color:var(--muted);}
-.list{list-style:none; padding:0; margin:0;}
-.item{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:12px; border-bottom:1px solid var(--border);}
+.btn{ width:100%; border:none; border-radius:12px; padding:14px; font-size:16px; color:white; }
+.btn.pecho{background:var(--good);} .btn.panal{background:var(--warn);} .btn.sueno{background:var(--blue);} .btn.secondary{background:#1f2937;} .btn.danger{background:#ef4444;}
+.small{font-size:12px; color:var(--muted);} .muted{color:var(--muted);}
+.list{list-style:none; padding:0; margin:0;} .item{display:flex; justify-content:space-between; gap:10px; padding:12px; border-bottom:1px solid var(--border);}
+.kpis{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;} .kpi{background:transparent; border:1px dashed var(--border); border-radius:12px; padding:12px;}
+.kpi h3{margin:0 0 8px 0; font-size:13px; color:var(--muted); font-weight:600;} .kpi .val{font-size:22px;}
 .badge{font-size:12px; padding:4px 8px; border-radius:999px; background:#1f2937; color:#cbd5e1; margin-left:6px;}
-.kpis{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
-.kpi{background:#0f1117; border:1px solid var(--border); border-radius:12px; padding:12px;}
-.kpi h3{margin:0 0 8px 0; font-size:13px; color:#cbd5e1; font-weight:600;}
-.kpi .val{font-size:22px;}
-canvas{width:100%; height:180px; background:#0f1117; border:1px solid var(--border); border-radius:12px;}
-footer{
-  position: fixed; bottom:0; left:0; right:0; background: rgba(11,12,16,0.9); backdrop-filter: blur(10px);
-  border-top:1px solid var(--border); padding:10px;
-}
-footer .row{grid-template-columns:1fr 1fr;}
-a.link{color:#93c5fd; text-decoration:none;}
-.hidden{display:none;}
+@media (prefers-color-scheme: light){ .badge{ background:#eef2ff; color:#374151;} }
+canvas{width:100%; height:180px; background:transparent; border:1px solid var(--border); border-radius:12px;}
+/* Bottom nav */
+.navbar{ position:fixed; bottom:0; left:0; right:0; height:72px; background:rgba(11,12,16,0.85); backdrop-filter: blur(10px);
+  border-top:1px solid var(--border); display:grid; grid-template-columns:repeat(4,1fr); }
+@media (prefers-color-scheme: light){ .navbar{ background:rgba(255,255,255,0.85);} }
+.navbtn{ appearance:none; border:none; background:transparent; color:var(--muted); font-size:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
+.navbtn.active{ color:var(--acc); }
+.icon{font-size:22px;}
+/* Quick actions */
+.quick{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+.quick .btn{padding:16px; border-radius:14px;}
+/* Sections */
+section{display:none;}
+section.active{display:block;}
 hr{border:none; border-top:1px solid var(--border); margin:12px 0;}
-section h2{margin:0 0 8px 0; font-size:16px;}
 </style>
 </head>
 <body>
-<header>
-  <h1>🍼 BabyLog — Control esencial</h1>
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="registrar">Registrar</button>
-    <button class="tab-btn" data-tab="historial">Historial</button>
-    <button class="tab-btn" data-tab="dashboard">Dashboard</button>
-    <button class="tab-btn" data-tab="ajustes">Ajustes</button>
-  </div>
-</header>
-
+<header><h1>🍼 BabyLog</h1></header>
 <main class="container">
-  <!-- Registrar -->
-  <section id="registrar" class="tab card">
-    <h2>Nueva entrada</h2>
-    <div class="row">
-      <select id="tipo">
-        <option value="toma">Toma</option>
-        <option value="panal">Pañal</option>
-        <option value="sueno">Sueño</option>
-        <option value="medicion">Medición</option>
-      </select>
-      <input id="fecha" type="datetime-local">
+  <!-- HOME -->
+  <section id="home" class="active">
+    <div class="card">
+      <h2 style="margin:0 0 10px 0;">Resumen de hoy</h2>
+      <div id="homeSummary" class="small muted">Sin datos aún.</div>
+      <hr>
+      <div class="kpis" id="homeKPIs"></div>
     </div>
-    <div id="campos"></div>
-    <button class="btn" id="guardar">Guardar</button>
-    <p class="small">Todos los datos se guardan en este dispositivo (localStorage). Exporta una copia en Ajustes periódicamente.</p>
+    <div class="card">
+      <h2 style="margin:0 0 10px 0;">Acciones rápidas</h2>
+      <div class="quick">
+        <button class="btn pecho" id="qaToma">+ Toma</button>
+        <button class="btn panal" id="qaPanal">+ Pañal</button>
+        <button class="btn sueno" id="qaSueno">+ Sueño</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2 style="margin:0 0 10px 0;">Peso (últimos 30 días)</h2>
+      <canvas id="chartPeso"></canvas>
+      <div class="row" style="margin-top:10px;">
+        <button class="btn secondary" id="expPesoCSV">Exportar peso CSV</button>
+        <button class="btn secondary" id="addPeso">Añadir peso</button>
+      </div>
+    </div>
   </section>
 
-  <!-- Historial -->
-  <section id="historial" class="tab card hidden">
-    <h2>Historial</h2>
-    <div class="row">
-      <input type="date" id="fDesde">
-      <input type="date" id="fHasta">
+  <!-- REGISTRAR -->
+  <section id="registrar">
+    <div class="card">
+      <h2>Nueva entrada</h2>
+      <div class="row">
+        <select id="tipo">
+          <option value="toma">Toma</option>
+          <option value="panal">Pañal</option>
+          <option value="sueno">Sueño</option>
+          <option value="medicion">Medición</option>
+          <option value="peso">Peso</option>
+        </select>
+        <input id="fecha" type="datetime-local">
+      </div>
+      <div id="campos"></div>
+      <button class="btn" id="guardar" style="background:var(--acc);">Guardar</button>
+      <p class="small">Local y offline. Exporta en Ajustes.</p>
     </div>
-    <div class="row">
-      <select id="fTipo">
-        <option value="todos">Todos</option>
-        <option value="toma">Toma</option>
-        <option value="panal">Pañal</option>
-        <option value="sueno">Sueño</option>
-        <option value="medicion">Medición</option>
-      </select>
-      <button class="btn secondary" id="aplicarFiltros">Aplicar filtros</button>
+    <div class="card">
+      <h2>Historial</h2>
+      <div class="row">
+        <input type="date" id="fDesde">
+        <input type="date" id="fHasta">
+      </div>
+      <div class="row">
+        <select id="fTipo">
+          <option value="todos">Todos</option>
+          <option value="toma">Toma</option>
+          <option value="panal">Pañal</option>
+          <option value="sueno">Sueño</option>
+          <option value="medicion">Medición</option>
+          <option value="peso">Peso</option>
+        </select>
+        <button class="btn secondary" id="aplicarFiltros">Aplicar filtros</button>
+      </div>
+      <ul class="list" id="lista"></ul>
     </div>
-    <ul class="list" id="lista"></ul>
   </section>
 
-  <!-- Dashboard -->
-  <section id="dashboard" class="tab hidden">
+  <!-- DASHBOARD -->
+  <section id="dashboard">
     <div class="card">
       <h2>Hoy</h2>
       <div class="kpis" id="kpisHoy"></div>
@@ -133,320 +146,295 @@ section h2{margin:0 0 8px 0; font-size:16px;}
       <div class="kpis" id="kpisMes"></div>
       <canvas id="chartMes"></canvas>
     </div>
+    <div class="card">
+      <h2>Evolución del peso</h2>
+      <canvas id="chartPesoDash"></canvas>
+      <p class="small muted" id="pesoHelp">Configura la línea de media esperada en Ajustes.</p>
+    </div>
   </section>
 
-  <!-- Ajustes -->
-  <section id="ajustes" class="tab card hidden">
-    <h2>Ajustes & Copias</h2>
-    <button class="btn secondary" id="exportar">Exportar JSON</button>
-    <input class="hidden" type="file" id="importarFile" accept="application/json">
-    <button class="btn secondary" id="importar">Importar JSON</button>
-    <hr>
-    <h2>Datos opcionales</h2>
-    <p class="small">Puedes registrar peso (kg), temperatura (°C) o notas rápidas. Úsalos cuando haga falta.</p>
-    <hr>
-    <button class="btn danger" id="borrarTodo">Borrar TODO (irrecuperable)</button>
+  <!-- AJUSTES -->
+  <section id="ajustes">
+    <div class="card">
+      <h2>Copias</h2>
+      <button class="btn secondary" id="exportarJSON">Exportar JSON</button>
+      <button class="btn secondary" id="importarJSON">Importar JSON</button>
+      <input class="hidden" type="file" id="fileJSON" accept="application/json">
+    </div>
+    <div class="card">
+      <h2>Línea de media esperada (peso)</h2>
+      <label>Activar línea esperada
+        <select id="expOn">
+          <option value="off">Desactivada</option>
+          <option value="on">Activada</option>
+        </select>
+      </label>
+      <div class="row">
+        <div>
+          <label>Fecha inicio (nacimiento)</label>
+          <input type="date" id="expStart">
+        </div>
+        <div>
+          <label>Peso inicio (kg, 2 dec.)</label>
+          <input type="number" step="0.01" min="0" id="expStartKg" placeholder="3.50">
+        </div>
+      </div>
+      <label>Ganancia semanal (kg/sem — ej. 0.18)</label>
+      <input type="number" step="0.01" min="0" id="expGain" placeholder="0.18">
+      <p class="small muted">*Esta línea es orientativa y configurable por ti. No sustituye a controles pediátricos.</p>
+      <button class="btn secondary" id="saveExp">Guardar ajustes</button>
+    </div>
+    <div class="card">
+      <h2>Preferencias</h2>
+      <label>Modo oscuro automático (20:00–07:00)
+        <select id="autoDark">
+          <option value="on">Activado</option>
+          <option value="off">Desactivado</option>
+        </select>
+      </label>
+      <button class="btn danger" id="borrarTodo">Borrar TODOS los datos</button>
+    </div>
   </section>
 </main>
 
-<footer>
-  <div class="row">
-    <button class="btn" id="btnToma">+ Toma</button>
-    <button class="btn" id="btnPanal">+ Pañal</button>
-  </div>
-  <div class="row" style="margin-top:8px;">
-    <button class="btn" id="btnSueno">+ Sueño</button>
-    <button class="btn" id="btnMedicion">+ Medición</button>
-  </div>
-</footer>
+<!-- Bottom Nav -->
+<nav class="navbar">
+  <button class="navbtn active" data-tab="home"><div class="icon">🏠</div>Inicio</button>
+  <button class="navbtn" data-tab="registrar"><div class="icon">➕</div>Registrar</button>
+  <button class="navbtn" data-tab="dashboard"><div class="icon">📊</div>Dashboard</button>
+  <button class="navbtn" data-tab="ajustes"><div class="icon">⚙️</div>Ajustes</button>
+</nav>
 
 <script>
-/* ========= Persistencia ========= */
-const KEY='babylog.v1';
-function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return []; } }
-function save(data){ localStorage.setItem(KEY, JSON.stringify(data)); }
+const KEY='babylog.v3';
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'{"items":[],"prefs":{}}'); }catch(e){ return {"items":[],"prefs":{}}; } }
+function save(state){ localStorage.setItem(KEY, JSON.stringify(state)); }
 
-/* ========= Utiles ========= */
+const state = load();
 const $ = sel => document.querySelector(sel);
 const $$ = sel => Array.from(document.querySelectorAll(sel));
 function pad(n){ return n.toString().padStart(2,'0'); }
 function fmtDate(d){
-  const dt=new Date(d);
-  const y=dt.getFullYear(), m=pad(dt.getMonth()+1), day=pad(dt.getDate());
-  const hh=pad(dt.getHours()), mm=pad(dt.getMinutes());
-  return `${y}-${m}-${day} ${hh}:${mm}`;
+  const dt=new Date(d); const y=dt.getFullYear(), m=pad(dt.getMonth()+1), day=pad(dt.getDate());
+  const hh=pad(dt.getHours()), mm=pad(dt.getMinutes()); return `${y}-${m}-${day} ${hh}:${mm}`;
 }
-function todayStr(){ const d=new Date(); return d.toISOString().slice(0,10); }
-function toLocalInput(dt){
-  if(!dt) dt=new Date();
-  const off=dt.getTimezoneOffset();
-  const t=new Date(dt.getTime()-off*60000);
-  return t.toISOString().slice(0,16);
+function toLocalInput(dt){ if(!dt) dt=new Date(); const off=dt.getTimezoneOffset(); const t=new Date(dt.getTime()-off*60000); return t.toISOString().slice(0,16); }
+function fromLocalInput(val){ const d=new Date(val); const off = d.getTimezoneOffset(); return new Date(d.getTime()+off*60000).toISOString(); }
+function durationMin(a,b){ return Math.max(0, Math.round((new Date(b)-new Date(a))/60000)); }
+
+/* Auto dark (20-07) by toggling data-theme-dark attr */
+function applyAutoDark(){
+  const on = (state.prefs?.autoDark ?? 'on') === 'on';
+  if(!on) return;
+  const now = new Date(); const h = now.getHours(); const dark = (h >= 20 || h < 7);
+  document.documentElement.setAttribute('data-dark', dark ? '1' : '0');
 }
-function fromLocalInput(val){
-  const d=new Date(val);
-  const off = d.getTimezoneOffset();
-  return new Date(d.getTime()+off*60000).toISOString();
-}
-function durationMin(startISO,endISO){
-  const a=new Date(startISO), b=new Date(endISO);
-  return Math.max(0, Math.round((b-a)/60000));
-}
+applyAutoDark(); setInterval(applyAutoDark, 60*1000);
 
-/* ========= Estado ========= */
-let DATA = load();
+/* Bottom nav */
+$$('.navbtn').forEach(b=> b.onclick=()=>{
+  $$('.navbtn').forEach(x=>x.classList.toggle('active', x===b));
+  const tab=b.dataset.tab; $$('main > section').forEach(s=> s.classList.toggle('active', s.id===tab));
+  if(tab==='dashboard'){ renderDashboard(); }
+  if(tab==='home'){ renderHome(); }
+});
 
-/* ========= UI Tabs ========= */
-$$('.tab-btn').forEach(b=>b.addEventListener('click',()=>{
-  $$('.tab-btn').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');
-  const tab=b.dataset.tab;
-  $$('.tab').forEach(sec=> sec.id===tab ? sec.classList.remove('hidden') : sec.classList.add('hidden'));
-  if(tab==='dashboard') renderDashboard();
-  if(tab==='historial') renderHistorial();
-  if(tab==='registrar') renderCampos($('#tipo').value);
-}));
+/* Quick actions */
+$('#qaToma').onclick=()=>{ switchTo('registrar'); $('#tipo').value='toma'; renderCampos('toma'); };
+$('#qaPanal').onclick=()=>{ switchTo('registrar'); $('#tipo').value='panal'; renderCampos('panal'); };
+$('#qaSueno').onclick=()=>{ switchTo('registrar'); $('#tipo').value='sueno'; renderCampos('sueno'); };
+$('#addPeso').onclick=()=>{ switchTo('registrar'); $('#tipo').value='peso'; renderCampos('peso'); };
 
-$('#btnToma').onclick=()=>{$('#tipo').value='toma'; switchTab('registrar'); renderCampos('toma');}
-$('#btnPanal').onclick=()=>{$('#tipo').value='panal'; switchTab('registrar'); renderCampos('panal');}
-$('#btnSueno').onclick=()=>{$('#tipo').value='sueno'; switchTab('registrar'); renderCampos('sueno');}
-$('#btnMedicion').onclick=()=>{$('#tipo').value='medicion'; switchTab('registrar'); renderCampos('medicion');}
-
-function switchTab(id){
-  $$('.tab-btn').forEach(x=>{ x.classList.toggle('active', x.dataset.tab===id); });
-  $$('.tab').forEach(sec=> sec.classList.toggle('hidden', sec.id!==id));
+function switchTo(id){
+  $$('.navbtn').forEach(x=> x.classList.toggle('active', x.dataset.tab===id));
+  $$('main > section').forEach(s=> s.classList.toggle('active', s.id===id));
 }
 
+/* Forms */
 $('#fecha').value = toLocalInput(new Date());
-
 $('#tipo').addEventListener('change', e=> renderCampos(e.target.value));
 function renderCampos(tipo){
   const c=$('#campos'); c.innerHTML='';
   if(tipo==='toma'){
     c.innerHTML=`
       <div class="row">
-        <select id="tomaTipo">
-          <option value="pecho">Pecho</option>
-          <option value="biberon">Biberón</option>
-        </select>
-        <select id="pechoLado">
-          <option value="izquierdo">Izquierdo</option>
-          <option value="derecho">Derecho</option>
-          <option value="ambos">Ambos</option>
-        </select>
+        <select id="tomaTipo"><option value="pecho">Pecho</option><option value="biberon">Biberón</option></select>
+        <select id="pechoLado"><option value="izquierdo">Izquierdo</option><option value="derecho">Derecho</option><option value="ambos">Ambos</option></select>
       </div>
       <div class="row">
         <input id="duracion" type="number" min="0" inputmode="numeric" placeholder="Duración (min)">
-        <input id="cantidad" type="number" min="0" inputmode="numeric" placeholder="Cantidad (ml, si biberón)">
+        <input id="cantidad" type="number" min="0" inputmode="numeric" placeholder="Cantidad (ml si biberón)">
       </div>
-      <textarea id="notas" rows="2" placeholder="Notas (opcional)"></textarea>
-    `;
+      <textarea id="notas" rows="2" placeholder="Notas (opcional)"></textarea>`;
   } else if(tipo==='panal'){
     c.innerHTML=`
       <div class="row">
-        <select id="panalTipo">
-          <option value="caca">Caca</option>
-          <option value="pis">Pis</option>
-          <option value="mixto">Mixto</option>
-        </select>
-        <select id="panalCantidad">
-          <option value="poco">Poco</option>
-          <option value="normal">Normal</option>
-          <option value="mucho">Mucho</option>
-        </select>
+        <select id="panalTipo"><option value="caca">Caca</option><option value="pis">Pis</option><option value="mixto">Mixto</option></select>
+        <select id="panalCantidad"><option value="poco">Poco</option><option value="normal">Normal</option><option value="mucho">Mucho</option></select>
       </div>
-      <textarea id="notas" rows="2" placeholder="Color/consistencia/irritación (opcional)"></textarea>
-    `;
+      <textarea id="notas" rows="2" placeholder="Color/consistencia/irritación (opcional)"></textarea>`;
   } else if(tipo==='sueno'){
     c.innerHTML=`
-      <div class="row">
-        <input id="inicio" type="datetime-local" placeholder="Inicio">
-        <input id="fin" type="datetime-local" placeholder="Fin">
-      </div>
-      <div class="row">
-        <input id="despertares" type="number" min="0" inputmode="numeric" placeholder="Despertares">
-        <select id="calidad">
-          <option value="ok">Calidad: OK</option>
-          <option value="inquieto">Inquieto</option>
-          <option value="malo">Malo</option>
-        </select>
-      </div>
-      <textarea id="notas" rows="2" placeholder="Notas (ruido, fiebre, dentición...) (opcional)"></textarea>
-    `;
-    $('#inicio').value = toLocalInput(new Date());
-    $('#fin').value = toLocalInput(new Date());
+      <div class="row"><input id="inicio" type="datetime-local"><input id="fin" type="datetime-local"></div>
+      <div class="row"><input id="despertares" type="number" min="0" inputmode="numeric" placeholder="Despertares">
+        <select id="calidad"><option value="ok">Calidad: OK</option><option value="inquieto">Inquieto</option><option value="malo">Malo</option></select></div>
+      <textarea id="notas" rows="2" placeholder="Notas (opcional)"></textarea>`;
+    $('#inicio').value = toLocalInput(new Date()); $('#fin').value = toLocalInput(new Date());
   } else if(tipo==='medicion'){
     c.innerHTML=`
-      <div class="row">
-        <input id="peso" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Peso (kg)">
-        <input id="temp" type="number" min="30" max="45" step="0.1" inputmode="decimal" placeholder="Temperatura (°C)">
-      </div>
-      <textarea id="notas" rows="2" placeholder="Notas rápidas"></textarea>
-    `;
+      <div class="row"><input id="temp" type="number" min="30" max="45" step="0.1" inputmode="decimal" placeholder="Temperatura (°C)">
+      <input id="extra" type="text" placeholder="Nota rápida"></div>`;
+  } else if(tipo==='peso'){
+    c.innerHTML=`
+      <div class="row"><input id="pesoKg" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Peso (kg, 2 dec.)"></div>
+      <p class="small muted">Ej. 3.995→ se muestra 4.00 kg (dos decimales). Puedes escribir con coma o punto.</p>`;
   }
 }
-
 renderCampos($('#tipo').value);
 
-/* ========= Guardar ========= */
-$('#guardar').addEventListener('click', ()=>{
+/* Save */
+$('#guardar').onclick=()=>{
   const tipo = $('#tipo').value;
   const fechaISO = fromLocalInput($('#fecha').value);
   const base = { id: crypto.randomUUID(), tipo, fecha: fechaISO };
+  const items = state.items;
   if(tipo==='toma'){
-    const d = {
-      ...base,
-      tomaTipo: $('#tomaTipo').value,
-      pechoLado: $('#pechoLado').value,
-      duracion: +($('#duracion').value||0),
-      cantidad: +($('#cantidad').value||0),
-      notas: ($('#notas').value||'').trim()
-    };
-    DATA.push(d);
+    items.push({ ...base, tomaTipo: $('#tomaTipo').value, pechoLado: $('#pechoLado').value,
+      duracion:+($('#duracion').value||0), cantidad:+($('#cantidad').value||0), notas:($('#notas').value||'').trim() });
   }else if(tipo==='panal'){
-    const d = {
-      ...base,
-      panalTipo: $('#panalTipo').value,
-      panalCantidad: $('#panalCantidad').value,
-      notas: ($('#notas').value||'').trim()
-    };
-    DATA.push(d);
+    items.push({ ...base, panalTipo: $('#panalTipo').value, panalCantidad: $('#panalCantidad').value, notas:($('#notas').value||'').trim() });
   }else if(tipo==='sueno'){
-    const d = {
-      ...base,
-      inicio: fromLocalInput($('#inicio').value),
-      fin: fromLocalInput($('#fin').value),
-      despertares: +($('#despertares').value||0),
-      calidad: $('#calidad').value,
-      notas: ($('#notas').value||'').trim()
-    };
-    DATA.push(d);
+    items.push({ ...base, inicio: fromLocalInput($('#inicio').value), fin: fromLocalInput($('#fin').value),
+      despertares:+($('#despertares').value||0), calidad:$('#calidad').value, notas:($('#notas').value||'').trim() });
   }else if(tipo==='medicion'){
-    const d = {
-      ...base,
-      peso: $('#peso').value ? +$('#peso').value : null,
-      temp: $('#temp').value ? +$('#temp').value : null,
-      notas: ($('#notas').value||'').trim()
-    };
-    if(d.peso===null && d.temp===null && !d.notas){ alert('Añade al menos un dato.'); return;}
-    DATA.push(d);
+    items.push({ ...base, temp: $('#temp').value? +$('#temp').value : null, extra: ($('#extra').value||'').trim() });
+  }else if(tipo==='peso'){
+    let v = ($('#pesoKg').value||'').replace(',','.');
+    if(!v || isNaN(parseFloat(v))) { alert('Introduce un peso válido (kg)'); return; }
+    const kg = parseFloat(v);
+    items.push({ ...base, pesoKg: kg });
   }
-  save(DATA);
-  flash('Guardado ✅');
-  // reset rápidos
-  $('#fecha').value = toLocalInput(new Date());
-  renderCampos(tipo);
-});
+  save(state);
+  toast('Guardado ✅');
+  $('#fecha').value = toLocalInput(new Date()); renderCampos(tipo); renderHome();
+};
 
-/* ========= Historial ========= */
+/* Historial */
+$('#aplicarFiltros').onclick=renderHistorial;
 function renderHistorial(){
   const lista = $('#lista'); lista.innerHTML='';
   const tipo = $('#fTipo').value;
   const dDesde = $('#fDesde').value ? new Date($('#fDesde').value+'T00:00:00') : null;
   const dHasta = $('#fHasta').value ? new Date($('#fHasta').value+'T23:59:59') : null;
-
-  const filtered = DATA.filter(it=>{
+  const filtered = state.items.filter(it=>{
     if(tipo!=='todos' && it.tipo!==tipo) return false;
     const t = new Date(it.fecha);
     if(dDesde && t<dDesde) return false;
     if(dHasta && t>dHasta) return false;
     return true;
   }).sort((a,b)=> new Date(b.fecha)-new Date(a.fecha));
-
-  if(filtered.length===0){ lista.innerHTML='<p class="small">Sin datos.</p>'; return; }
-
+  if(filtered.length===0){ lista.innerHTML='<p class="small muted">Sin datos.</p>'; return; }
   for(const it of filtered){
     const li=document.createElement('li'); li.className='item';
-    const left=document.createElement('div');
-    const right=document.createElement('div');
-    right.innerHTML=`<button class="tab-btn" data-del="${it.id}">Eliminar</button>`;
-    left.innerHTML = renderItem(it);
-    li.appendChild(left); li.appendChild(right);
-    lista.appendChild(li);
+    const left=document.createElement('div'); const right=document.createElement('div');
+    right.innerHTML=`<button class="btn secondary" data-del="${it.id}" style="padding:8px 10px;">Eliminar</button>`;
+    left.innerHTML = renderItem(it); li.appendChild(left); li.appendChild(right); lista.appendChild(li);
   }
-
-  // eliminar
   $$('#lista [data-del]').forEach(btn=> btn.onclick=()=>{
     const id = btn.dataset.del;
     if(confirm('¿Eliminar esta entrada?')){
-      DATA = DATA.filter(x=>x.id!==id); save(DATA); renderHistorial(); renderDashboard();
+      state.items = state.items.filter(x=>x.id!==id); save(state); renderHistorial(); renderHome(); renderDashboard();
     }
   });
 }
 function renderItem(it){
   const fecha = fmtDate(it.fecha);
   if(it.tipo==='toma'){
-    const tag = it.tomaTipo==='pecho'
-      ? `Pecho <span class="badge">${it.pechoLado}</span>`
-      : `Biberón <span class="badge">${it.cantidad||0} ml</span>`;
-    return `<div><strong>🍼 Toma</strong> — ${tag} — ${it.duracion||0} min<br><span class="small">${fecha}${it.notas? ' · '+escapeHtml(it.notas):''}</span></div>`;
+    const tag = it.tomaTipo==='pecho' ? `Pecho <span class="badge">${it.pechoLado}</span>` : `Biberón <span class="badge">${it.cantidad||0} ml</span>`;
+    return `<div><strong>🍼 Toma</strong> — ${tag} — ${it.duracion||0} min<br><span class="small muted">${fecha}${it.notas? ' · '+escapeHtml(it.notas):''}</span></div>`;
   }else if(it.tipo==='panal'){
-    return `<div><strong>🧷 Pañal</strong> — ${it.panalTipo} · ${it.panalCantidad}<br><span class="small">${fecha}${it.notas? ' · '+escapeHtml(it.notas):''}</span></div>`;
+    return `<div><strong>🧷 Pañal</strong> — ${it.panalTipo} · ${it.panalCantidad}<br><span class="small muted">${fecha}${it.notas? ' · '+escapeHtml(it.notas):''}</span></div>`;
   }else if(it.tipo==='sueno'){
     const mins = durationMin(it.inicio,it.fin);
-    return `<div><strong>🌙 Sueño</strong> — ${mins} min · despertares: ${it.despertares}<br><span class="small">${fmtDate(it.inicio)} → ${fmtDate(it.fin)}${it.notas? ' · '+escapeHtml(it.notas):''}</span></div>`;
+    return `<div><strong>🌙 Sueño</strong> — ${mins} min · despertares: ${it.despertares}<br><span class="small muted">${fmtDate(it.inicio)} → ${fmtDate(it.fin)}${it.notas? ' · '+escapeHtml(it.notas):''}</span></div>`;
+  }else if(it.tipo==='peso'){
+    return `<div><strong>⚖️ Peso</strong> — ${fmtKg(it.pesoKg)}<br><span class="small muted">${fecha}</span></div>`;
   }else{
-    const bits=[];
-    if(it.peso!=null) bits.push(`Peso: ${it.peso} kg`);
-    if(it.temp!=null) bits.push(`Temp: ${it.temp} °C`);
-    return `<div><strong>📏 Medición</strong> — ${bits.join(' · ')||'—'}<br><span class="small">${fecha}${it.notas? ' · '+escapeHtml(it.notas):''}</span></div>`;
+    const bits=[]; if(it.temp!=null) bits.push(`Temp: ${it.temp} °C`);
+    if(it.extra) bits.push(escapeHtml(it.extra));
+    return `<div><strong>📏 Medición</strong> — ${bits.join(' · ')||'—'}<br><span class="small muted">${fecha}</span></div>`;
   }
 }
-function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m])); }
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;","&gt;":"&gt;","\"":"&quot;","'":"&#039;"}[m])); }
+function fmtKg(v){ return (Math.round(v*100)/100).toFixed(2).replace('.',',') + ' kg'; }
 
-$('#aplicarFiltros').onclick=()=> renderHistorial();
+/* HOME */
+function renderHome(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dayItems = state.items.filter(it=> new Date(it.fecha) >= today);
+  const last = (t)=> dayItems.filter(x=>x.tipo===t).sort((a,b)=> new Date(b.fecha)-new Date(a.fecha))[0];
+  const sum = (f)=> dayItems.reduce((acc,it)=> acc + (f(it)||0), 0);
+  const lastToma = last('toma');
+  const lastPanal = last('panal');
+  const lastPeso = state.items.filter(x=>x.tipo==='peso').sort((a,b)=> new Date(b.fecha)-new Date(a.fecha))[0];
+  const suenoMin = dayItems.filter(x=>x.tipo==='sueno').reduce((a,x)=>a+durationMin(x.inicio,x.fin),0);
+  const lines = [];
+  lines.push(lastToma ? `Última toma: ${fmtDate(lastToma.fecha)} — ${lastToma.tomaTipo}${lastToma.tomaTipo==='pecho'? ' ('+lastToma.pechoLado+')' : ' ('+(lastToma.cantidad||0)+' ml)'}` : 'Sin tomas registradas hoy');
+  lines.push(lastPanal ? `Último pañal: ${fmtDate(lastPanal.fecha)} — ${lastPanal.panalTipo} · ${lastPanal.panalCantidad}` : 'Sin pañales registrados hoy');
+  lines.push(`Sueño acumulado hoy: ${(suenoMin/60).toFixed(1)} h`);
+  lines.push(lastPeso ? `Peso más reciente: ${fmtKg(lastPeso.pesoKg)}` : 'Aún sin peso registrado');
+  $('#homeSummary').innerHTML = lines.map(l=>`<div>${l}</div>`).join('');
 
-/* ========= Dashboard ========= */
+  // KPIs hoy
+  const k=calcKPIs(dayItems);
+  $('#homeKPIs').innerHTML = `
+    <div class="kpi"><h3>Tomas</h3><div class="val">${k.tomas}</div></div>
+    <div class="kpi"><h3>Pañales</h3><div class="val">${k.panales}</div></div>
+    <div class="kpi"><h3>Sueño (h)</h3><div class="val">${(k.minSueno/60).toFixed(1)}</div></div>
+    <div class="kpi"><h3>Despertares</h3><div class="val">${k.despertares}</div></div>
+  `;
+
+  drawWeight($('#chartPeso'), 30);
+}
+renderHome();
+
+/* DASHBOARD */
 function renderDashboard(){
   const now = new Date();
   const startHoy = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startSemana = new Date(now.getTime()-6*86400000); startSemana.setHours(0,0,0,0);
   const startMes = new Date(now.getTime()-29*86400000); startMes.setHours(0,0,0,0);
-
   const inRange = (it, start)=> new Date(it.fecha)>=start;
-
-  const hoy = DATA.filter(it=> inRange(it,startHoy));
-  const semana = DATA.filter(it=> inRange(it,startSemana));
-  const mes = DATA.filter(it=> inRange(it,startMes));
-
+  const hoy = state.items.filter(it=> inRange(it,startHoy));
+  const semana = state.items.filter(it=> inRange(it,startSemana));
+  const mes = state.items.filter(it=> inRange(it,startMes));
   renderKPIs(hoy, $('#kpisHoy'));
   renderKPIs(semana, $('#kpisSemana'));
   renderKPIs(mes, $('#kpisMes'));
-
   drawBars($('#chartHoy'), groupByDay(hoy, startHoy, 1));
   drawBars($('#chartSemana'), groupByDay(semana, startSemana, 7));
   drawBars($('#chartMes'), groupByDay(mes, startMes, 30));
+  drawWeight($('#chartPesoDash'), 90);
 }
-
 function renderKPIs(items, el){
-  const kpi = calcKPIs(items);
+  const k = calcKPIs(items);
   el.innerHTML = `
-    <div class="kpi"><h3>Tomas</h3><div class="val">${kpi.tomas}</div></div>
-    <div class="kpi"><h3>Min. pecho</h3><div class="val">${kpi.minPecho}</div></div>
-    <div class="kpi"><h3>ml biberón</h3><div class="val">${kpi.mlBiberon}</div></div>
-    <div class="kpi"><h3>Pañales</h3><div class="val">${kpi.panales}</div></div>
-    <div class="kpi"><h3>Sueño (h)</h3><div class="val">${(kpi.minSueno/60).toFixed(1)}</div></div>
-    <div class="kpi"><h3>Despertares</h3><div class="val">${kpi.despertares}</div></div>
-  `;
+    <div class="kpi"><h3>Tomas</h3><div class="val">${k.tomas}</div></div>
+    <div class="kpi"><h3>Min. pecho</h3><div class="val">${k.minPecho}</div></div>
+    <div class="kpi"><h3>ml biberón</h3><div class="val">${k.mlBiberon}</div></div>
+    <div class="kpi"><h3>Pañales</h3><div class="val">${k.panales}</div></div>
+    <div class="kpi"><h3>Sueño (h)</h3><div class="val">${(k.minSueno/60).toFixed(1)}</div></div>
+    <div class="kpi"><h3>Despertares</h3><div class="val">${k.despertares}</div></div>`;
 }
-
 function calcKPIs(items){
   let tomas=0, minPecho=0, mlBiberon=0, panales=0, minSueno=0, despertares=0;
   for(const it of items){
-    if(it.tipo==='toma'){
-      tomas++;
-      if(it.tomaTipo==='pecho') minPecho += +it.duracion||0;
-      if(it.tomaTipo==='biberon') mlBiberon += +it.cantidad||0;
-    }else if(it.tipo==='panal'){
-      panales++;
-    }else if(it.tipo==='sueno'){
-      minSueno += durationMin(it.inicio,it.fin);
-      despertares += +it.despertares||0;
-    }
+    if(it.tipo==='toma'){ tomas++; if(it.tomaTipo==='pecho') minPecho += +it.duracion||0; if(it.tomaTipo==='biberon') mlBiberon += +it.cantidad||0; }
+    else if(it.tipo==='panal'){ panales++; }
+    else if(it.tipo==='sueno'){ minSueno += durationMin(it.inicio,it.fin); despertares += +it.despertares||0; }
   }
   return { tomas, minPecho, mlBiberon, panales, minSueno, despertares };
 }
-
 function groupByDay(items, startDate, days){
   const fmt = d=>`${pad(d.getDate())}/${pad(d.getMonth()+1)}`;
   const labels=[], tomas=[], panales=[], suenoH=[];
@@ -458,43 +446,27 @@ function groupByDay(items, startDate, days){
       return t.getFullYear()===d.getFullYear() && t.getMonth()===d.getMonth() && t.getDate()===d.getDate();
     });
     const k = calcKPIs(sameDay);
-    tomas.push(k.tomas);
-    panales.push(k.panales);
-    suenoH.push(+((k.minSueno/60).toFixed(1)));
+    tomas.push(k.tomas); panales.push(k.panales); suenoH.push(+((k.minSueno/60).toFixed(1)));
   }
   return {labels, series:[{name:'Tomas', data:tomas},{name:'Pañales', data:panales},{name:'Sueño (h)', data:suenoH}]};
 }
 
-/* Simple bar chart without external libs */
+/* Drawing utilities */
 function drawBars(canvas, data){
   const ctx = canvas.getContext('2d');
   const w = canvas.width = canvas.clientWidth * devicePixelRatio;
   const h = canvas.height = canvas.clientHeight * devicePixelRatio;
   ctx.clearRect(0,0,w,h);
   const padding=20*devicePixelRatio;
-  const labels = data.labels;
-  const series = data.series; // 3 series
-
-  // Compute max
-  let max=1;
-  for(const s of series) for(const v of s.data) max=Math.max(max, v);
-  const colors = ['#7c3aed','#22c55e','#60a5fa'];
-
+  const labels = data.labels, series = data.series;
+  let max=1; for(const s of series) for(const v of s.data) max=Math.max(max, v);
+  const colors = ['#22c55e','#f59e0b','#3b82f6'];
   const barGroupWidth = (w - 2*padding) / labels.length;
   const barWidth = barGroupWidth / (series.length+0.5);
-  ctx.lineWidth = 1*devicePixelRatio;
-  ctx.font = `${10*devicePixelRatio}px -apple-system, Inter, sans-serif`;
-  ctx.textAlign='center'; ctx.textBaseline='top';
-
-  // grid
-  ctx.strokeStyle = '#23262e';
+  ctx.lineWidth = 1*devicePixelRatio; ctx.font = `${10*devicePixelRatio}px -apple-system, Inter`; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#23262e';
   const steps = 4;
-  for(let i=0;i<=steps;i++){
-    const y = padding + (h-2*padding) * i/steps;
-    ctx.beginPath(); ctx.moveTo(padding,y); ctx.lineTo(w-padding,y); ctx.stroke();
-  }
-
-  // bars
+  for(let i=0;i<=steps;i++){ const y = padding + (h-2*padding) * i/steps; ctx.beginPath(); ctx.moveTo(padding,y); ctx.lineTo(w-padding,y); ctx.stroke(); }
   labels.forEach((lab, i)=>{
     series.forEach((s, j)=>{
       const v = s.data[i];
@@ -504,74 +476,178 @@ function drawBars(canvas, data){
       ctx.fillStyle = colors[j % colors.length];
       ctx.fillRect(x+2, y, barWidth-4, bh);
     });
-    // label
-    ctx.fillStyle = '#9aa3af';
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#9aa3af';
     ctx.fillText(lab, padding + i*barGroupWidth + (series.length*barWidth)/2, h - padding + 4*devicePixelRatio);
-  });
-
-  // legend
-  const legendX = w - padding - 110*devicePixelRatio, legendY = padding-5*devicePixelRatio;
-  series.forEach((s, idx)=>{
-    ctx.fillStyle = colors[idx];
-    const y = legendY + idx*14*devicePixelRatio;
-    ctx.fillRect(legendX, y, 10*devicePixelRatio, 10*devicePixelRatio);
-    ctx.fillStyle = '#cbd5e1';
-    ctx.textAlign='left';
-    ctx.fillText(` ${s.name}`, legendX + 12*devicePixelRatio, y - 2*devicePixelRatio);
   });
 }
 
-/* ========= Export/Import ========= */
-$('#exportar').onclick=()=>{
-  const blob=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`babylog_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
+/* Weight chart with optional expected mean line */
+function drawWeight(canvas, days){
+  const ctx=canvas.getContext('2d');
+  const w = canvas.width = canvas.clientWidth * devicePixelRatio;
+  const h = canvas.height = canvas.clientHeight * devicePixelRatio;
+  ctx.clearRect(0,0,w,h);
+  const padding=26*devicePixelRatio;
+
+  const now=new Date(); const start=new Date(now.getTime()-(days-1)*86400000); start.setHours(0,0,0,0);
+  const points = state.items.filter(x=> x.tipo==='peso' && new Date(x.fecha)>=start).sort((a,b)=> new Date(a.fecha)-new Date(b.fecha));
+  const labels=[], vals=[];
+  for(let i=0;i<days;i++){
+    const d=new Date(start.getTime()+i*86400000);
+    labels.push(`${pad(d.getDate())}/${pad(d.getMonth()+1)}`);
+    // take last weight of that day if exists
+    const dayPts = points.filter(p=>{
+      const t=new Date(p.fecha); return t.getFullYear()===d.getFullYear() && t.getMonth()===d.getMonth() && t.getDate()===d.getDate();
+    });
+    vals.push(dayPts.length? dayPts[dayPts.length-1].pesoKg : null);
+  }
+  // interpolate nulls for nicer line
+  const numeric = vals.map(v=> v==null ? NaN : v);
+  const filled = interpolateNa(numeric);
+
+  // expected line (optional)
+  let expLine = null;
+  if((state.prefs?.expOn||'off')==='on' && state.prefs.expStart && state.prefs.expStartKg && state.prefs.expGain){
+    const startDate = new Date(state.prefs.expStart+'T00:00:00');
+    const w0 = parseFloat(state.prefs.expStartKg);
+    const gain = parseFloat(state.prefs.expGain); // kg per week
+    expLine = [];
+    for(let i=0;i<days;i++){
+      const d=new Date(start.getTime()+i*86400000);
+      const weeks = (d - startDate) / (7*86400000);
+      expLine.push( w0 + Math.max(0,weeks) * gain );
+    }
+  }
+
+  const allVals = filled.filter(x=>!isNaN(x)).concat(expLine||[]);
+  const minV = Math.min(...allVals, 0) || 0;
+  const maxV = Math.max(...allVals, 1) || 1;
+  const yMin = Math.floor(minV*10)/10;
+  const yMax = Math.ceil(maxV*10)/10;
+
+  // grid
+  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#23262e';
+  const steps=4;
+  for(let i=0;i<=steps;i++){
+    const y = padding + (h-2*padding) * i/steps;
+    ctx.beginPath(); ctx.moveTo(padding,y); ctx.lineTo(w-padding,y); ctx.stroke();
+  }
+
+  // axes labels (x sampled)
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#9aa3af';
+  ctx.font = `${10*devicePixelRatio}px -apple-system, Inter`; ctx.textAlign='center'; ctx.textBaseline='top';
+  const step = Math.ceil(labels.length/6);
+  labels.forEach((lab,i)=>{ if(i%step===0){ const x = padding + i*( (w-2*padding)/(labels.length-1||1) ); ctx.fillText(lab, x, h - padding + 4*devicePixelRatio);} });
+
+  // y helper
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  for(let i=0;i<=steps;i++){
+    const v = yMin + (yMax - yMin)*i/steps;
+    const y = padding + (h-2*padding) * (i/steps);
+    ctx.fillText(v.toFixed(1).replace('.',','), padding-6*devicePixelRatio, y);
+  }
+
+  // draw line function
+  function line(values, color){
+    ctx.lineWidth = 2*devicePixelRatio; ctx.strokeStyle = color;
+    ctx.beginPath();
+    values.forEach((v,i)=>{
+      if(isNaN(v)) return;
+      const x = padding + i*( (w-2*padding)/(values.length-1||1) );
+      const y = padding + (1 - (v - yMin)/(yMax - yMin)) * (h-2*padding);
+      if(i===0 || isNaN(values[i-1])) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  }
+
+  // actual weight
+  line(filled, '#7c3aed');
+  // expected
+  if(expLine){ line(expLine, '#22c55e'); }
+}
+
+function interpolateNa(arr){
+  const out=arr.slice();
+  // forward fill and simple linear interpolation
+  let lastIdx=null;
+  for(let i=0;i<arr.length;i++){
+    if(!isNaN(arr[i])){
+      if(lastIdx===null && i>0){ for(let j=0;j<i;j++) out[j]=arr[i]; }
+      if(lastIdx!==null){
+        const a=arr[lastIdx], b=arr[i], dist=i-lastIdx;
+        for(let j=1;j<dist;j++){ out[lastIdx+j] = a + (b-a)*(j/dist); }
+      }
+      lastIdx=i;
+    }
+  }
+  if(lastIdx is None):
+      pass
+  return out.map(v=> isNaN(v)? out[lastIdx] : v);
+}
+
+/* Export peso CSV */
+$('#expPesoCSV').onclick=()=>{
+  const weights = state.items.filter(x=>x.tipo==='peso').sort((a,b)=> new Date(a.fecha)-new Date(b.fecha));
+  const rows=[['fecha','peso_kg']].concat(weights.map(w=>[w.fecha, (Math.round(w.pesoKg*100)/100).toFixed(2)]));
+  const csv = rows.map(r=> r.join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='babylog_peso.csv'; a.click();
 };
-$('#importar').onclick=()=> $('#importarFile').click();
-$('#importarFile').addEventListener('change', async (e)=>{
-  const file = e.target.files[0]; if(!file) return;
+
+/* Export/Import general */
+$('#exportarJSON').onclick=()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='babylog_backup.json'; a.click();
+};
+$('#importarJSON').onclick=()=> $('#fileJSON').click();
+$('#fileJSON').addEventListener('change', async (e)=>{
+  const f=e.target.files[0]; if(!f) return;
   try{
-    const txt = await file.text();
-    const obj = JSON.parse(txt);
-    if(!Array.isArray(obj)) throw new Error('Formato no válido');
+    const txt=await f.text(); const obj=JSON.parse(txt);
+    if(!obj || !Array.isArray(obj.items)) throw new Error('Formato no válido');
     if(!confirm('Esto reemplazará tus datos actuales. ¿Continuar?')) return;
-    DATA = obj; save(DATA);
-    flash('Datos importados ✅');
-    renderDashboard(); renderHistorial();
+    state.items = obj.items; state.prefs = obj.prefs||{}; save(state);
+    toast('Datos importados ✅'); renderHome(); renderDashboard();
   }catch(err){ alert('Error al importar: '+err.message); }
   e.target.value='';
 });
 
-/* ========= Borrar ========= */
+/* Ajustes medias esperadas + preferencias */
+function loadPrefsUI(){
+  $('#expOn').value = state.prefs?.expOn || 'off';
+  $('#expStart').value = state.prefs?.expStart || '';
+  $('#expStartKg').value = state.prefs?.expStartKg || '';
+  $('#expGain').value = state.prefs?.expGain || '';
+  $('#autoDark').value = state.prefs?.autoDark || 'on';
+}
+$('#saveExp').onclick=()=>{
+  state.prefs = state.prefs||{};
+  state.prefs.expOn = $('#expOn').value;
+  state.prefs.expStart = $('#expStart').value;
+  state.prefs.expStartKg = $('#expStartKg').value;
+  state.prefs.expGain = $('#expGain').value;
+  state.prefs.autoDark = $('#autoDark').value;
+  save(state); toast('Preferencias guardadas'); renderHome(); renderDashboard();
+};
+loadPrefsUI();
+
+/* Danger zone */
 $('#borrarTodo').onclick=()=>{
   if(confirm('¿Seguro que quieres borrar TODOS los datos?')){
-    DATA = []; save(DATA); renderDashboard(); renderHistorial(); flash('Base de datos vaciada');
+    state.items=[]; save(state); renderHome(); renderDashboard(); renderHistorial(); toast('Base vacía');
   }
 };
 
-/* ========= Helpers ========= */
-function flash(msg){
-  const el=document.createElement('div');
-  el.textContent=msg;
+/* Utils */
+function toast(msg){
+  const el=document.createElement('div'); el.textContent=msg;
   el.style.position='fixed'; el.style.bottom='90px'; el.style.left='50%'; el.style.transform='translateX(-50%)';
-  el.style.background='#111827'; el.style.border='1px solid var(--border)'; el.style.padding='10px 14px';
-  el.style.borderRadius='10px'; el.style.zIndex=20;
-  document.body.appendChild(el);
-  setTimeout(()=> el.remove(), 1500);
+  el.style.background='rgba(0,0,0,0.8)'; el.style.color='#fff'; el.style.padding='10px 14px'; el.style.borderRadius='10px'; el.style.zIndex=20;
+  document.body.appendChild(el); setTimeout(()=> el.remove(), 1500);
 }
 
-// SW registration
-if('serviceWorker' in navigator){
-  window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
-  });
-}
-
-// Render inicial
-renderDashboard();
-renderHistorial();
+// Service Worker
+if('serviceWorker' in navigator){ window.addEventListener('load', ()=>{ navigator.serviceWorker.register('./service-worker.js').catch(()=>{}); }); }
 </script>
 </body>
 </html>

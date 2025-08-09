@@ -1,5 +1,5 @@
 {
-  "name": "BabyLog — Registro del bebé",
+  "name": "BabyLog App",
   "short_name": "BabyLog",
   "start_url": "./",
   "display": "standalone",
